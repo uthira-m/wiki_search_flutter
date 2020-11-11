@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:wiki_search/api_response.dart';
+import 'package:wiki_search/database_helper.dart';
+import 'package:wiki_search/history_list.dart';
 import 'package:wiki_search/search_bloc.dart';
 import 'package:wiki_search/search_list.dart';
 import 'package:wiki_search/search_loder.dart';
@@ -61,6 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
   SearchBloc _bloc;
   SearchBar searchBar;
   String searchValue;
+  final dbHelper = DatabaseHelper.instance;
 
   _MyHomePageState() {
     searchBar = new SearchBar(
@@ -91,6 +94,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void onSubmitted(String value) {
     searchValue = value;
+    dbHelper.insertSearchText(SearchHistory(text: value));
+    _bloc.fetchSearchList(value);
+  }
+
+  void onSearch(String value) {
+    searchValue = value;
     _bloc.fetchSearchList(value);
   }
 
@@ -114,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 return LoadingListPage();
                 break;
               case Status.COMPLETED:
-                if(snapshot.data.data != null) {
+                if (snapshot.data.data != null) {
                   return SearchList(searchResult: snapshot.data.data);
                 } else {
                   return Empty("Empty Search Result");
@@ -128,7 +137,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 break;
             }
           }
-          return Empty("Start search Wiki");
+
+          return FutureBuilder<List<SearchHistory>>(
+              future: dbHelper.getAllSearchHistories(),
+              initialData: List(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data.length > 0) {
+                  return HistoryList(
+                      searchHistory: snapshot.data, onTapped: onSearch);
+                } else {
+                  return Empty("Start search Wiki");
+                }
+              });
         },
       ),
     );

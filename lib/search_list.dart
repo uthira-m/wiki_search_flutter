@@ -28,10 +28,13 @@ class SearchList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
+    return ListView.separated(
+      separatorBuilder: (context, index) => Divider(
+        color: Colors.grey,
+      ),
       itemCount: searchResult.length,
       itemBuilder: (context, index) {
-        return GestureDetector(
+        return InkWell(
             onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -41,13 +44,13 @@ class SearchList extends StatelessWidget {
                 ),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Card(
+              child: Container(
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: Row(children: [
                     _displayMedia(searchResult[index].imageUrl),
                     const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      padding: EdgeInsets.symmetric(horizontal: 4.0),
                     ),
                     Expanded(
                       child: Column(
