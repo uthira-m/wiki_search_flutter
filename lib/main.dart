@@ -94,13 +94,22 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void onSubmitted(String value) {
     searchValue = value;
-    dbHelper.insertSearchText(SearchHistory(text: value));
+    dbHelper.insertSearchText(value);
     _bloc.fetchSearchList(value);
   }
 
-  void onSearch(String value) {
-    searchValue = value;
-    _bloc.fetchSearchList(value);
+  void onSearch(SearchHistory value, bool isDelete) {
+    if (isDelete) {
+      dbHelper.delete(value.id);
+    } else {
+      searchValue = value.text;
+      _bloc.fetchSearchList(value.text);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant MyHomePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
   }
 
   @override

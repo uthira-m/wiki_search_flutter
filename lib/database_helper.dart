@@ -48,11 +48,14 @@ class DatabaseHelper {
   }
 
   // Helper methods
-  Future<void> insertSearchText(SearchHistory searchHistory) async {
+  Future<void> insertSearchText(String text) async {
+    Map<String, dynamic> row = {
+      'text': text,
+    };
     final Database db = await database;
     int id = await db.insert(
       table,
-      searchHistory.toMap(),
+      row,
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     print("Row ID $id");
@@ -60,12 +63,12 @@ class DatabaseHelper {
 
   Future<List<SearchHistory>> getAllSearchHistories() async {
     final Database db = await database;
-
     final List<Map<String, dynamic>> maps = await db.query(table);
     print("get map $maps");
     return List.generate(maps.length, (i) {
       return SearchHistory(
         text: maps[i]['text'],
+        id: maps[i]["_id"],
       );
     });
   }
@@ -96,12 +99,14 @@ class DatabaseHelper {
 
 class SearchHistory {
   final String text;
+  final int id;
 
-  SearchHistory({this.text});
+  SearchHistory({this.text, this.id});
 
   Map<String, dynamic> toMap() {
     return {
       'text': text,
+      'id': id,
     };
   }
 }
